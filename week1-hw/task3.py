@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# task 2
+# task 3
+'''
+1) f(u) = [-g/l * sin theta / theta, omega]
+2) plot phase portrait - plot x:theta to y:omega, get ellipse/circle unless omega very high...
+'''
 
 actual_t = [0]
 actual_y = []

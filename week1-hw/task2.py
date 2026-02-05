@@ -1,18 +1,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-actual_t = [0]
-actual_y = []
-t_vals = []
-y_vals = []
-DT = 0.5
+# actual_t = [0]
+# actual_y = []
+# t_vals = []
+# y_vals = []
 
+''' pointers:
+1) preallocate via np.linespace(), np.zeros
+2) put DT as argument in functions for more transparent
+3) error vs stepsize, use absolute value
+4) plot error on log log scale
+'''
+
+DT = 0.001
+actual_t = np.linspace(0, t_final, t_final/DT)
+actual_y = np.zeros(t_final, t_final/DT)
 
 def f(t: float, y: float): # du/dt
    return -np.log(2) * y / 2
 
 
-def actual(f, y_0, t_final):
+def actual(f, y_0, t_final, DT):
     n_steps = int(t_final / DT)
     t = 0
     actual_y.append(y_0)
@@ -27,7 +36,7 @@ def actual(f, y_0, t_final):
 
     return actual_y[-1]
 
-def forward_euler(f, y_0, t_final):
+def forward_euler(f, y_0, t_final, DT):
     n_steps = int(t_final / DT)
     u_k = y_0
     t = 0
@@ -36,12 +45,11 @@ def forward_euler(f, y_0, t_final):
         t += DT
         u_k += DT * f(t, u_k)
         t_vals.append(t)
-        y_vals.append(u_k.copy() - actual_y[i])
-        # y_vals.append(u_k.copy())
+        # y_vals.append(u_k.copy() - actual_y[i])
+        y_vals.append(u_k.copy())
     return u_k
 
-
-def explicit_midpoint(f, y_0, t_final):
+def explicit_midpoint(f, y_0, t_final, DT):
     n_steps = int(t_final/DT)
     u_k = y_0
     t = 0
@@ -52,12 +60,11 @@ def explicit_midpoint(f, y_0, t_final):
         t += DT
         u_k += DT * f(t, u_mid)
         t_vals.append(t)
-        y_vals.append(u_k.copy() - actual_y[i])
-        # y_vals.append(u_k.copy())
+        # y_vals.append(u_k.copy() - actual_y[i])
+        y_vals.append(u_k.copy())
     return u_k
 
-
-def rk4(f, y_0, t_final):
+def rk4(f, y_0, t_final, DT):
     n_steps = int(t_final/DT)
     u_k = y_0
     t = 0
@@ -69,8 +76,8 @@ def rk4(f, y_0, t_final):
         t += DT
         u_k += DT * f(t, y3)
         t_vals.append(t)
-        y_vals.append(u_k.copy() - actual_y[i])
-        # y_vals.append(u_k.copy())
+        # y_vals.append(u_k.copy() - actual_y[i])
+        y_vals.append(u_k.copy())
     return u_k
 
 
@@ -80,7 +87,6 @@ line_style = dict(
     lw=0.5,
 )
 
-
 labels = dict(
     fontsize=10,
     family="Arial",
@@ -89,7 +95,6 @@ labels = dict(
 for i in range(4):
     t_vals = [0]
     y_vals = [0]
-    DT = 0.1
     match i:
         case 0:
             actual(f, 400, 2)
