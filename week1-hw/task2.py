@@ -1,11 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# actual_t = [0]
-# actual_y = []
-# t_vals = []
-# y_vals = []
-
 ''' pointers:
 1) preallocate via np.linespace(), np.zeros
 2) put DT as argument in functions for more transparent
@@ -13,9 +8,11 @@ import numpy as np
 4) plot error on log log scale
 '''
 
-DT = 0.001
-actual_t = np.linspace(0, t_final, t_final/DT)
-actual_y = np.zeros(t_final, t_final/DT)
+DT = 0.1
+T_FINAL = 2
+actual_y = np.zeros(int(T_FINAL/DT)+1)
+t_vals = np.linspace(0, T_FINAL, int(T_FINAL/DT)+1)
+y_vals = np.zeros(int(T_FINAL/DT)+1)
 
 def f(t: float, y: float): # du/dt
    return -np.log(2) * y / 2
@@ -23,62 +20,36 @@ def f(t: float, y: float): # du/dt
 
 def actual(f, y_0, t_final, DT):
     n_steps = int(t_final / DT)
-    t = 0
-    actual_y.append(y_0)
-
     k = np.log(2) / 2  # because y' = -(ln2/2)*y
-
-    for _ in range(n_steps):
-        t += DT
-        y = y_0 * np.exp(-k * t)
-        actual_t.append(t)
-        actual_y.append(y)
-
+    actual_y[0] = y_0
+    for i in range(n_steps):
+        actual_y[i+1] = y_0 * np.exp(-k * t_vals[i])
     return actual_y[-1]
 
 def forward_euler(f, y_0, t_final, DT):
-    n_steps = int(t_final / DT)
-    u_k = y_0
-    t = 0
-    # y_vals.append(y_0)
+    n_steps = int(t_final/DT)
+    y_vals[0] = y_0
     for i in range(n_steps):
-        t += DT
-        u_k += DT * f(t, u_k)
-        t_vals.append(t)
-        # y_vals.append(u_k.copy() - actual_y[i])
-        y_vals.append(u_k.copy())
-    return u_k
+        y_vals[i+1] = y_vals[i]+DT * f(t_vals[i+1], y_vals[i])
+    return y_vals[-1]
 
 def explicit_midpoint(f, y_0, t_final, DT):
     n_steps = int(t_final/DT)
-    u_k = y_0
-    t = 0
-    # y_vals.append(y_0)
+    y_vals[0] = y_0
     for i in range(n_steps):
-        t_mid = t + DT/2
-        u_mid = u_k + DT / 2 * f(t_mid, u_k)
-        t += DT
-        u_k += DT * f(t, u_mid)
-        t_vals.append(t)
-        # y_vals.append(u_k.copy() - actual_y[i])
-        y_vals.append(u_k.copy())
-    return u_k
+        y_mid = y_vals[i]+DT/2 * f(t_vals[i]+DT/2, y_vals[i])
+        y_vals[i+1] = y_vals[i]+DT * f(t_vals[i+1], y_mid)
+    return y_vals[-1]
 
 def rk4(f, y_0, t_final, DT):
     n_steps = int(t_final/DT)
-    u_k = y_0
-    t = 0
-    # y_vals.append(y_0)
+    y_vals[0] = y_0
     for i in range(n_steps):
-        y1 = u_k + DT/4 * f(t+DT/4, u_k)
-        y2 = u_k + DT/3 * f(t+DT/3, y1)
-        y3 = u_k + DT/2 * f(t+DT/2, y2)
-        t += DT
-        u_k += DT * f(t, y3)
-        t_vals.append(t)
-        # y_vals.append(u_k.copy() - actual_y[i])
-        y_vals.append(u_k.copy())
-    return u_k
+        y1 = y_vals[i]+DT/4 * f(t_vals[i]+DT/4, y_vals[i])
+        y2 = y_vals[i]+DT/3 * f(t_vals[i]+DT/3, y1)
+        y3 = y_vals[i]+DT/2 * f(t_vals[i]+DT/2, y2)
+        y_vals[i+1] = y_vals[i]+DT * f(t_vals[i+1], y3)
+    return y_vals[-1]
 
 
 line_style = dict(
@@ -92,31 +63,24 @@ labels = dict(
     family="Arial",
     fontweight="bold"
 )
-for i in range(4):
-    t_vals = [0]
-    y_vals = [0]
+
+actual(f, 400, 2, DT)
+for i in range(3):
     match i:
         case 0:
-            actual(f, 400, 2)
+            print(forward_euler(f, 400, 2, DT))
+            plt.loglog(t_vals, abs(y_vals-actual_y), mfc = "red", **line_style)
+            y_vals.fill(0)
         case 1:
-            forward_euler(f, 400, 2)
-            plt.plot(t_vals, y_vals, mfc = "red", **line_style)
-            # plt.title("Forward Euler", **labels)
+            print(explicit_midpoint(f, 400, 2, DT))
+            plt.loglog(t_vals, abs(y_vals-actual_y), mfc = "green", **line_style)
+            y_vals.fill(0)
         case 2:
-            explicit_midpoint(f, 400, 2)
-            plt.plot(t_vals, y_vals, mfc = "green", **line_style)
-            # plt.title("Explicit Midpoint", **labels)
-        case 3:
-            rk4(f, 400, 2)
-            plt.plot(t_vals, y_vals, mfc = "blue", **line_style)
-            # plt.title("Low Storage Runge-Kutta 4", **labels)
+            print(rk4(f, 400, 2, DT))
+            plt.loglog(t_vals, abs(y_vals-actual_y), mfc = "blue", **line_style)
+            y_vals.fill(0)
     plt.xlabel("Time (hours)", **labels)
     plt.ylabel("Deviation (mg)", **labels)
-
-
-
-
-
 
 plt.title("All 3", **labels)
 plt.show()
