@@ -7,58 +7,36 @@ import numpy as np
 2) plot phase portrait - plot x:theta to y:omega, get ellipse/circle unless omega very high...
 '''
 
-actual_t = [0]
-actual_y = []
-t_vals = []
-y_vals = []
-DT = 0.5
+DT = 0.001
+T_FINAL = 10
+actual_y = np.zeros((int(T_FINAL/DT)+1, 2))
+t_vals = np.linspace(0, T_FINAL, int(T_FINAL/DT)+1)
+y_vals = np.zeros((int(T_FINAL/DT)+1, 2))
 
-def forward_euler(f, y_0, t_final):
-    n_steps = int(t_final / DT)
-    u_k = y_0
-    t = 0
-    # y_vals.append(y_0)
-    for i in range(n_steps):
-        t += DT
-        u_k += DT * f(t, u_k)
-        t_vals.append(t)
-        y_vals.append(u_k.copy() - actual_y[i])
-        # y_vals.append(u_k.copy())
-    return u_k
-
-
-def explicit_midpoint(f, y_0, t_final):
+def forward_euler(f, y_0, t_final, DT):
     n_steps = int(t_final/DT)
-    u_k = y_0
-    t = 0
-    # y_vals.append(y_0)
+    y_vals[0] = y_0
     for i in range(n_steps):
-        t_mid = t + DT/2
-        u_mid = u_k + DT / 2 * f(t_mid, u_k)
-        t += DT
-        u_k += DT * f(t, u_mid)
-        t_vals.append(t)
-        y_vals.append(u_k.copy() - actual_y[i])
-        # y_vals.append(u_k.copy())
-    return u_k
+        y_vals[i+1] = y_vals[i]+DT * f(t_vals[i+1], y_vals[i])
+    return y_vals[-1]
 
-
-def rk4(f, y_0, t_final):
+def explicit_midpoint(f, y_0, t_final, DT):
     n_steps = int(t_final/DT)
-    u_k = y_0
-    t = 0
-    # y_vals.append(y_0)
+    y_vals[0] = y_0
     for i in range(n_steps):
-        y1 = u_k + DT/4 * f(t+DT/4, u_k)
-        y2 = u_k + DT/3 * f(t+DT/3, y1)
-        y3 = u_k + DT/2 * f(t+DT/2, y2)
-        t += DT
-        u_k += DT * f(t, y3)
-        t_vals.append(t)
-        y_vals.append(u_k.copy() - actual_y[i])
-        # y_vals.append(u_k.copy())
-    return u_k
+        y_mid = y_vals[i]+DT/2 * f(t_vals[i]+DT/2, y_vals[i])
+        y_vals[i+1] = y_vals[i]+DT * f(t_vals[i+1], y_mid)
+    return y_vals[-1]
 
+def rk4(f, y_0, t_final, DT):
+    n_steps = int(t_final/DT)
+    y_vals[0] = y_0
+    for i in range(n_steps):
+        y1 = y_vals[i]+DT/4 * f(t_vals[i]+DT/4, y_vals[i])
+        y2 = y_vals[i]+DT/3 * f(t_vals[i]+DT/3, y1)
+        y3 = y_vals[i]+DT/2 * f(t_vals[i]+DT/2, y2)
+        y_vals[i+1] = y_vals[i]+DT * f(t_vals[i+1], y3)
+    return y_vals[-1]
 
 line_style = dict(
     marker="o",
@@ -80,44 +58,25 @@ I = np.array([[1, 0], [0, 1]])
 def du(t, u):
     return A@u
 
-def actual(du, y_0, t_final):
+def actual(du, y_0, t_final, DT):
     n_steps = int(t_final / DT)
-    t = 0
-    actual_y.append(y_0)
-
-    for _ in range(n_steps):
-        t += DT
-        y = np.pi/4 * np.cos(t*np.sqrt(G/L))
-        actual_t.append(t)
-        actual_y.append(y)
-
+    actual_y[0] = y_0
+    for i in range(n_steps):
+        actual_y[i+1] = np.pi/4 * np.cos(t_vals[i]*np.sqrt(G/L))
     return actual_y[-1]
 
+actual(du, np.array([np.pi/4, 0]), 10, DT)
 for i in range(4):
-    t_vals = [0]
-    y_vals = [[np.pi/4, 0]]
-    DT = 0.5
-    match i:
+    match 0:
         case 0:
-            actual(du, np.array([np.pi/4, 0]), 10)
+            print(forward_euler(du, np.array([np.pi/4, 0]), 10, DT))
+            plt.plot(t_vals, abs(y_vals[:,0]-actual_y[:,0]), mfc = "red", **line_style)
         case 1:
-            print(forward_euler(du, np.array([np.pi/4, 0]), 10))
-            Y = np.array(y_vals)
-            plt.plot(t_vals, Y[:,0], mfc = "red", **line_style)
-            y_vals.clear()
-            # plt.title("Forward Euler", **labels)
+            print(explicit_midpoint(du, np.array([np.pi/4, 0]), 10, DT))
+            plt.plot(t_vals, abs(y_vals[:,0]-actual_y[:,0]), mfc = "green", **line_style)
         case 2:
-            print(explicit_midpoint(du, np.array([np.pi/4, 0]), 10))
-            Y = np.array(y_vals)
-            plt.plot(t_vals, Y[:,0], mfc = "green", **line_style)
-            y_vals.clear()
-            # plt.title("Explicit Midpoint", **labels)
-        case 3:
-            print(rk4(du, np.array([np.pi/4, 0]), 10))
-            Y = np.array(y_vals)
-            plt.plot(t_vals, Y[:,0], mfc = "blue", **line_style)
-            y_vals.clear()
-            # plt.title("Low Storage Runge-Kutta 4", **labels)
+            print(rk4(du, np.array([np.pi/4, 0]), 10, DT))
+            plt.plot(t_vals, abs(y_vals[:,0]-actual_y[:,0]), mfc = "blue", **line_style)
     plt.xlabel("Time (s)", **labels)
     plt.ylabel("Angle (rad)", **labels)
 

@@ -8,7 +8,7 @@ import numpy as np
 4) plot error on log log scale
 '''
 
-DT = 0.1
+DT = 0.001
 T_FINAL = 2
 actual_y = np.zeros(int(T_FINAL/DT)+1)
 t_vals = np.linspace(0, T_FINAL, int(T_FINAL/DT)+1)
@@ -70,15 +70,12 @@ for i in range(3):
         case 0:
             print(forward_euler(f, 400, 2, DT))
             plt.loglog(t_vals, abs(y_vals-actual_y), mfc = "red", **line_style)
-            y_vals.fill(0)
         case 1:
             print(explicit_midpoint(f, 400, 2, DT))
             plt.loglog(t_vals, abs(y_vals-actual_y), mfc = "green", **line_style)
-            y_vals.fill(0)
         case 2:
             print(rk4(f, 400, 2, DT))
             plt.loglog(t_vals, abs(y_vals-actual_y), mfc = "blue", **line_style)
-            y_vals.fill(0)
     plt.xlabel("Time (hours)", **labels)
     plt.ylabel("Deviation (mg)", **labels)
 
