@@ -46,7 +46,7 @@ class DiffEq:
         self.is_filled = True
         return self.y_vals[-1]
     
-    def plot(self, color:str, is_loglog:bool, is_diff:bool) -> None:
+    def plot(self, color:str, is_loglog:bool, is_diff:bool, x_axis="Independent", y_axis="Dependent") -> None:
         if (not self.is_filled):
             raise ValueError("y_vals is empty")
         line_style = dict(
@@ -73,12 +73,14 @@ class DiffEq:
             plt.loglog(self.t_vals, y_arr, c=color, **line_style)
         else:
             plt.plot(self.t_vals, y_arr, c=color, **line_style)
+        plt.xlabel(x_axis, **labels)
+        plt.ylabel(y_axis, **labels)
         plt.show()
         # print(self.y_vals)
         # print("\n\n\n\n\n")
         # print(self.y_actual)
     
-    def plot_actual(self, color:str, is_loglog:bool) -> None:
+    def plot_actual(self, color:str, is_loglog:bool, x_axis="Independent", y_axis="Dependent") -> None:
         line_style = dict(
             marker="o",
             ms = 0.1,
@@ -93,4 +95,26 @@ class DiffEq:
             plt.loglog(self.t_vals, self.ACTUAL_Y, mfc=color, **line_style)
         else:
             plt.plot(self.t_vals, self.ACTUAL_Y, mfc=color, **line_style)
+        plt.xlabel(x_axis, **labels)
+        plt.ylabel(y_axis, **labels)
+        plt.show()
+
+    def phase_diagram(self, color:str, x_axis="Independent", y_axis="Dependent") -> None:
+        if (self.dimensions <= 1 or not self.is_filled):
+            raise ValueError("Bad conditions")
+        line_style = dict(
+            marker="o",
+            ms = 0.1,
+            lw=0.5,
+        )
+        labels = dict(
+            fontsize=10,
+            family="Arial",
+            fontweight="bold"
+        )
+        # only works for theta and omega for now
+
+        plt.plot(self.y_vals[:, 0], self.y_vals[:, 1], c=color, **line_style)
+        plt.xlabel(x_axis, **labels)
+        plt.ylabel(y_axis, **labels)
         plt.show()
