@@ -17,6 +17,16 @@ class DiffEq:
         self.y_vals = np.zeros((int(T_FINAL/DT)+1)) if self.dimensions == 1 else np.zeros((int(T_FINAL/DT)+1, self.dimensions))
         # self.y_vals = np.zeros((int(T_FINAL/DT)+1, self.dimensions))
         self.is_filled = False
+        self.labels = dict(
+            fontsize=10,
+            family="Arial",
+            fontweight="bold"
+        )
+        self.line_style = dict(
+            marker="o",
+            ms = 0.1,
+            lw=0.5,
+        )
 
     def forward_euler(self):
         n_steps = int(self.T_FINAL/self.DT)
@@ -46,20 +56,9 @@ class DiffEq:
         self.is_filled = True
         return self.y_vals[-1]
     
-    def plot(self, color:str, is_loglog:bool, is_diff:bool, x_axis="Independent", y_axis="Dependent") -> None:
+    def plot(self, color:str, is_loglog:bool, is_diff:bool, label_val:str) -> None:
         if (not self.is_filled):
             raise ValueError("y_vals is empty")
-        line_style = dict(
-            marker="o",
-            ms = 0.1,
-            lw=0.5,
-        )
-        labels = dict(
-            fontsize=10,
-            family="Arial",
-            fontweight="bold"
-        )
-        
         y_arr = self.y_vals
         y_actual = self.ACTUAL_Y
         if (self.dimensions > 1):
@@ -67,54 +66,28 @@ class DiffEq:
             y_actual = y_actual[:,0]
 
         if(is_diff): 
-            y_arr = abs(y_arr - y_actual)
+            y_arr = np.abs(y_arr - y_actual)
 
         if (is_loglog):
-            plt.loglog(self.t_vals, y_arr, c=color, **line_style)
+            plt.loglog(self.t_vals, y_arr, c=color, label=label_val, **self.line_style)
         else:
-            plt.plot(self.t_vals, y_arr, c=color, **line_style)
-        plt.xlabel(x_axis, **labels)
-        plt.ylabel(y_axis, **labels)
-        plt.show()
-        # print(self.y_vals)
-        # print("\n\n\n\n\n")
+            plt.plot(self.t_vals, y_arr, c=color, label=label_val, **self.line_style)
+        print(y_arr)
+        print("\n\n\n")
         # print(self.y_actual)
+        # print(y_arr, "\n\n")
     
-    def plot_actual(self, color:str, is_loglog:bool, x_axis="Independent", y_axis="Dependent") -> None:
-        line_style = dict(
-            marker="o",
-            ms = 0.1,
-            lw=0.5,
-        )
-        labels = dict(
-            fontsize=10,
-            family="Arial",
-            fontweight="bold"
-        )
+    def plot_actual(self, color:str, is_loglog:bool) -> None:
         if (is_loglog):
-            plt.loglog(self.t_vals, self.ACTUAL_Y, mfc=color, **line_style)
+            plt.loglog(self.t_vals, self.ACTUAL_Y, mfc=color, **self.line_style)
         else:
-            plt.plot(self.t_vals, self.ACTUAL_Y, mfc=color, **line_style)
-        plt.xlabel(x_axis, **labels)
-        plt.ylabel(y_axis, **labels)
+            plt.plot(self.t_vals, self.ACTUAL_Y, mfc=color, **self.line_style)
         plt.show()
 
-    def phase_diagram(self, color:str, x_axis="Independent", y_axis="Dependent") -> None:
+    def phase_diagram(self, color:str) -> None:
         if (self.dimensions <= 1 or not self.is_filled):
             raise ValueError("Bad conditions")
-        line_style = dict(
-            marker="o",
-            ms = 0.1,
-            lw=0.5,
-        )
-        labels = dict(
-            fontsize=10,
-            family="Arial",
-            fontweight="bold"
-        )
         # only works for theta and omega for now
 
-        plt.plot(self.y_vals[:, 0], self.y_vals[:, 1], c=color, **line_style)
-        plt.xlabel(x_axis, **labels)
-        plt.ylabel(y_axis, **labels)
+        plt.plot(self.y_vals[:, 0], self.y_vals[:, 1], c=color, **self.line_style)
         plt.show()
