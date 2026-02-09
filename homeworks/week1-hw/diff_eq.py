@@ -60,7 +60,14 @@ class DiffEq:
             fontweight="bold"
         )
         
-        y_arr = abs(self.y_vals - self.ACTUAL_Y) if is_diff else self.y_vals
+        y_arr = self.y_vals
+        y_actual = self.ACTUAL_Y
+        if (self.dimensions > 1):
+            y_arr = y_arr[:,0]
+            y_actual = y_actual[:,0]
+
+        if(is_diff): 
+            y_arr = abs(y_arr - y_actual)
 
         if (is_loglog):
             plt.loglog(self.t_vals, y_arr, c=color, **line_style)
@@ -68,7 +75,8 @@ class DiffEq:
             plt.plot(self.t_vals, y_arr, c=color, **line_style)
         plt.show()
         # print(self.y_vals)
-        # print(self.ACTUAL_Y)
+        # print("\n\n\n\n\n")
+        # print(self.y_actual)
     
     def plot_actual(self, color:str, is_loglog:bool) -> None:
         line_style = dict(

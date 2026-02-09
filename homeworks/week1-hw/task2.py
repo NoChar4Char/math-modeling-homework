@@ -28,4 +28,4 @@ def actual(f, Y_0) -> None:
 actual(f, Y_0)
 drug_decay = DiffEq(f, T_FINAL, DT, Y_0, ACTUAL_Y)
 drug_decay.forward_euler()
-drug_decay.plot("red", False, False)
+drug_decay.plot("red", True, True)
