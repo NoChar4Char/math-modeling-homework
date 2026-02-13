@@ -73,10 +73,6 @@ class DiffEq:
             plt.loglog(self.t_vals, y_arr, c=color, label=label_val, **self.line_style)
         else:
             plt.plot(self.t_vals, y_arr, c=color, label=label_val, **self.line_style)
-        print(y_arr)
-        print("\n\n\n")
-        # print(self.y_actual)
-        # print(y_arr, "\n\n")
     
     def plot_actual(self, color:str, is_loglog:bool) -> None:
         if (is_loglog):
@@ -85,15 +81,25 @@ class DiffEq:
             plt.plot(self.t_vals, self.ACTUAL_Y, mfc=color, **self.line_style)
         plt.show()
 
-    def phase_diagram(self, color:str) -> None:
-        if (self.dimensions <= 1 or not self.is_filled):
-            raise ValueError("Bad conditions")
-        # only works for theta and omega for now
+    def phase_diagram(self, color:str, method:str) -> None:
+        match method.lower():
+            case "forward euler" | "1":
+                self.forward_euler()
+            case "explicit midpoint" | "2":
+                self.explicit_midpoint()
+            case "low storage runge-kutta 4" | "3":
+                self.rk4()
+            case _:
+                print("???")
+                return None
+        if not self.dimensions == 2:
+            raise ValueError("Bad dimensions")
 
-        plt.plot(self.y_vals[:, 0], self.y_vals[:, 1], c=color, **self.line_style)
+        plt.plot(self.y_vals[:,0], self.y_vals[:,1], c=color, label=method, **self.line_style)
+        plt.legend()
         plt.show()
 
-    def plot_error(self, color_list:list, time_list:list, method_list:list) -> None: # actual task1
+    def plot_error_with_actual(self, color_list:list, time_list:list, method_list:list) -> None: # actual task1
         original_DT = self.DT
         for i in range(len(method_list)):
             points = np.zeros(len(time_list)) if self.dimensions == 1 else np.zeros(len(time_list), self.dimensions)
@@ -103,12 +109,12 @@ class DiffEq:
                 self.y_vals = np.zeros((int(self.T_FINAL/self.DT)+1)) if self.dimensions == 1 else np.zeros((int(self.T_FINAL/self.DT)+1, self.dimensions))
                 if self.T_FINAL/self.DT != int(self.T_FINAL/self.DT):
                     raise ValueError(f"DT={self.DT} doesn't divide into T_FINAL={self.T_FINAL}")
-                match method_list[i]:
-                    case "Forward Euler" | "1":
+                match method_list[i].lower():
+                    case "forward euler" | "1":
                         self.forward_euler()
-                    case "Explicit Midpoint" | "2":
+                    case "explicit midpoint" | "2":
                         self.explicit_midpoint()
-                    case "Low Storage Runge-Kutta 4" | "3":
+                    case "low storage runge-kutta 4" | "3":
                         self.rk4()
                     case _:
                         print("???")
@@ -121,3 +127,38 @@ class DiffEq:
         plt.ylabel("Error", **self.labels)
         plt.show()
         self.DT = original_DT
+
+    def plot_error_with_other(self, other_dq:DiffEq, color_list:list, time_list:list, method_list:list) -> None: # actual task1
+        original_DT = self.DT # should be equal to other_dq.DT
+        for i in range(len(method_list)):
+            points = np.zeros(len(time_list))
+            for j in range(len(time_list)):
+                self.DT = time_list[j]
+                self.t_vals = np.linspace(0, self.T_FINAL, int(self.T_FINAL/self.DT) + 1)
+                self.y_vals = np.zeros((int(self.T_FINAL/self.DT)+1)) if self.dimensions == 1 else np.zeros((int(self.T_FINAL/self.DT)+1, self.dimensions))
+                other_dq.t_vals = np.linspace(0, other_dq.T_FINAL, int(other_dq.T_FINAL/other_dq.DT) + 1)
+                other_dq.y_vals = np.zeros((int(other_dq.T_FINAL/other_dq.DT)+1)) if other_dq.dimensions == 1 else np.zeros((int(other_dq.T_FINAL/other_dq.DT)+1, other_dq.dimensions))
+                if self.T_FINAL/self.DT != int(self.T_FINAL/self.DT):
+                    raise ValueError(f"DT={self.DT} doesn't divide into T_FINAL={self.T_FINAL}")
+                match method_list[i].lower():
+                    case "forward euler" | "1":
+                        self.forward_euler()
+                        other_dq.forward_euler()
+                    case "explicit midpoint" | "2":
+                        self.explicit_midpoint()
+                        other_dq.explicit_midpoint()
+                    case "low storage runge-kutta 4" | "3":
+                        self.rk4()
+                        other_dq.rk4()
+                    case _:
+                        print("???")
+                        continue
+                
+                points[j] = np.abs(self.y_vals[-1] - other_dq.y_vals[-1]) if self.dimensions == 1 else np.abs(self.y_vals[-1][0] - other_dq.y_vals[-1][0])
+            plt.loglog(time_list, points, c=color_list[i], label=method_list[i], **self.line_style)
+        plt.legend()
+        plt.xlabel("Timestep", **self.labels)
+        plt.ylabel("Error", **self.labels)
+        plt.show()
+        self.DT = original_DT
+        other_dq.DT = original_DT

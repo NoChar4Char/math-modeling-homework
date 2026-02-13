@@ -27,22 +27,8 @@ def actual(f, Y_0) -> None:
 
 actual(f, Y_0)
 drug_decay = DiffEq(f, T_FINAL, DT, Y_0, ACTUAL_Y)
-# drug_decay.forward_euler()
-# drug_decay.plot("red", True, True, "Forward Euler")
-# # print(abs(drug_decay.y_vals-drug_decay.ACTUAL_Y), "\n\n\n")
-# drug_decay.explicit_midpoint()
-# drug_decay.plot("green", True, True, "Explicit Midpoint")
-# # print(abs(drug_decay.y_vals-drug_decay.ACTUAL_Y), "\n\n\n")
-# drug_decay.rk4()
-# drug_decay.plot("blue", True, True, "Low Storage Runge-Kutta 4")
-# # print(abs(drug_decay.y_vals-drug_decay.ACTUAL_Y), "\n\n\n")
-# plt.xlabel("Timestep", **drug_decay.labels)
-# plt.ylabel("Error", **drug_decay.labels)
-# plt.legend()
-# plt.show()
-
 color_list = ["red", "green", "blue"]
 # time_list = [0.1, 0.01, 0.001]
-time_list = [0.2, 0.1, 0.05, 0.04, 0.02, 0.01, 0.008, 0.005, 0.004, 0.001]
+time_list = [0.5, 0.2, 0.1, 0.05, 0.04, 0.02, 0.01, 0.008, 0.005, 0.004]
 method_list = ["Forward Euler", "Explicit Midpoint", "Low Storage Runge-Kutta 4"]
-drug_decay.plot_error(color_list, time_list, method_list)
+drug_decay.plot_error_with_actual(color_list, time_list, method_list)
