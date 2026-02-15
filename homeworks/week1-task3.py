@@ -42,13 +42,13 @@ def nonlin_g(t, u):
 
 lin_actual(lin_g, np.array([np.pi/4, 0]), T_FINAL, DT)
 
-lin_pendulum = DiffEq(lin_g, T_FINAL, DT, Y_0, LIN_ACTUAL_Y)
+lin_pendulum = DiffEq("Linear Pendulum", lin_g, T_FINAL, DT, Y_0, LIN_ACTUAL_Y)
 '''
 lin_pendulum.rk4()
 lin_pendulum.plot("red", False, False, "Linear pendulum")
 '''
 
-nonlin_pendulum = DiffEq(nonlin_g, T_FINAL, DT, Y_0, lin_pendulum.y_vals)
+nonlin_pendulum = DiffEq("Nonlinear Pendulum", nonlin_g, T_FINAL, DT, Y_0, lin_pendulum.y_vals)
 '''
 nonlin_pendulum.rk4()
 nonlin_pendulum.plot("blue", False, False, "Nonlinear pendulum")
@@ -65,4 +65,4 @@ nonlin_pendulum.plot_error_with_other(lin_pendulum, color_list, time_list, metho
 '''
 
 method = "Low Storage Runge-Kutta 4"
-nonlin_pendulum.phase_diagram("green", method)
+nonlin_pendulum.phase_portrait("green", method)

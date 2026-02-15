@@ -26,7 +26,7 @@ def lin_actual(lin_g, y_0, t_final, DT):
     return LIN_ACTUAL_Y[-1]
 
 lin_actual(lin_g, np.array([np.pi/4, 0]), T_FINAL, DT)
-lin_pendulum = DiffEq(lin_g, T_FINAL, DT, Y_0, LIN_ACTUAL_Y)
+lin_pendulum = DiffEq("Linear Pendulum", lin_g, T_FINAL, DT, Y_0, LIN_ACTUAL_Y)
 
 color_list = ["red", "green", "blue", "purple"]
 # time_list = [0.1, 0.01, 0.001]

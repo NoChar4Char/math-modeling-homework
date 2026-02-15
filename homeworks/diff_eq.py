@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class DiffEq:
-    def __init__(self, f:function, T_FINAL:int, DT:float, Y_0:float, ACTUAL_Y): # broken if DT not divisible by T_FINAL
+    def __init__(self, name:str, f:function, T_FINAL:int, DT:float, Y_0:float, ACTUAL_Y): # broken if DT not divisible by T_FINAL
         self.dimensions = None
         try:
             self.dimensions = ACTUAL_Y.shape[1]
@@ -28,6 +28,7 @@ class DiffEq:
             ms = 0.1,
             lw=0.5,
         )
+        self.name = name
 
     def forward_euler(self):
         n_steps = int(self.T_FINAL/self.DT)
@@ -94,7 +95,7 @@ class DiffEq:
         else:
             plt.plot(self.t_vals, y_actual, mfc=color, label = "Actual Graph", **self.line_style)
 
-    def phase_diagram(self, color:str, method:str) -> None:
+    def phase_portrait(self, color:str, method:str) -> None:
         match method.lower():
             case "forward euler" | "1":
                 self.forward_euler()
@@ -110,6 +111,9 @@ class DiffEq:
 
         plt.plot(self.y_vals[:,0], self.y_vals[:,1], c=color, label=method, **self.line_style)
         print(self.y_vals[:,0], "\n", self.y_vals[:,1])
+        plt.title(f"Phase Portrait for {self.name}", **self.labels)
+        plt.xlabel("Theta (Angular Displacement)", **self.labels)
+        plt.ylabel("Omega (Angular Velocity)", **self.labels)
         plt.legend()
         plt.show()
 
@@ -138,6 +142,7 @@ class DiffEq:
                 points[j] = np.abs(self.y_vals[-1] - self.ACTUAL_Y[-1]) if self.dimensions == 1 else np.abs(self.y_vals[-1][0] - self.ACTUAL_Y[-1][0])
             plt.loglog(time_list, points, c=color_list[i], label=method_list[i], **self.line_style)
         plt.legend()
+        plt.title(f"Plot {self.name} Error with Actual", **self.labels)
         plt.xlabel("Timestep", **self.labels)
         plt.ylabel("Error", **self.labels)
         plt.show()
@@ -172,6 +177,7 @@ class DiffEq:
                 points[j] = np.abs(self.y_vals[-1] - other_dq.y_vals[-1]) if self.dimensions == 1 else np.abs(self.y_vals[-1][0] - other_dq.y_vals[-1][0])
             plt.loglog(time_list, points, c=color_list[i], label=method_list[i], **self.line_style)
         plt.legend()
+        plt.title(f"Plot {self.name} Error with Other {other_dq.name}", **self.labels)
         plt.xlabel("Timestep", **self.labels)
         plt.ylabel("Error", **self.labels)
         plt.show()

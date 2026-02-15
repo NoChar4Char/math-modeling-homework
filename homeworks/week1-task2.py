@@ -26,7 +26,7 @@ def actual(f, Y_0) -> None:
         t += DT
 
 actual(f, Y_0)
-drug_decay = DiffEq(f, T_FINAL, DT, Y_0, ACTUAL_Y)
+drug_decay = DiffEq("Drug Decay", f, T_FINAL, DT, Y_0, ACTUAL_Y)
 color_list = ["red", "green", "blue"]
 # time_list = [0.1, 0.01, 0.001]
 time_list = [0.5, 0.2, 0.1, 0.05, 0.04, 0.02, 0.01, 0.008, 0.005, 0.004]
