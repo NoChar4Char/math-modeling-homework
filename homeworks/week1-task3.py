@@ -10,10 +10,10 @@ from diff_eq import DiffEq
 '''
 
 DT = 0.01
-T_FINAL = 80
+T_FINAL = 10
 LIN_ACTUAL_Y = np.zeros((int(T_FINAL/DT)+1, 2))
 NONLIN_ACTUAL_Y = np.zeros((int(T_FINAL/DT)+1, 2)) # for now, don't know how to use ellipical stuff
-Y_0 = np.array([np.pi/2, 10])
+Y_0 = np.array([np.pi/2, 10]) # default: np.array([np.pi/4, 0]), which matches the actual for linearized.
 
 def lin_g(t, u):
     L = 10
