@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from homeworks.diff_eq import DiffEq
+from diff_eq import DiffEq
 
 ''' pointers:
 1) preallocate via np.linespace(), np.zeros
