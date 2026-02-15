@@ -60,6 +60,8 @@ class DiffEq:
     
     def backward_euler(self):
         # only for linear pendulum
+        if self.name.lower() != "linear pendulum":
+            raise NameError("Bad differential equation")
         I = np.array([[1, 0], [0, 1]])
         A = np.array([[0, 1], [-9.81/10, 0]])
         n_steps = int(self.T_FINAL/self.DT)
