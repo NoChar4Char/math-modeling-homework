@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from diff_eq import DiffEq
+from homeworks.diff_eq import DiffEq
 
 
 # task 3
@@ -13,7 +13,7 @@ DT = 0.01
 T_FINAL = 80
 LIN_ACTUAL_Y = np.zeros((int(T_FINAL/DT)+1, 2))
 NONLIN_ACTUAL_Y = np.zeros((int(T_FINAL/DT)+1, 2)) # for now, don't know how to use ellipical stuff
-Y_0 = np.array([np.pi/4, 0])
+Y_0 = np.array([np.pi/2, 10])
 
 def lin_g(t, u):
     L = 10

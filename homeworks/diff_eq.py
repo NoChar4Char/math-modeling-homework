@@ -57,6 +57,16 @@ class DiffEq:
         self.is_filled = True
         # return self.y_vals[-1]
     
+    def backward_euler(self):
+        # only for linear pendulum
+        I = np.array([[1, 0], [0, 1]])
+        A = np.array([[0, 1], [-9.81/10, 0]])
+        n_steps = int(self.T_FINAL/self.DT)
+        self.y_vals[0] = self.Y_0
+        for i in range(n_steps):
+            self.y_vals[i+1] = np.linalg.solve(I - self.DT*A, self.y_vals[i])
+        self.is_filled = True
+
     def plot(self, color:str, is_loglog:bool, is_diff:bool, label_val:str) -> None:
         if (not self.is_filled):
             raise ValueError("y_vals is empty")
@@ -75,11 +85,14 @@ class DiffEq:
             plt.plot(self.t_vals, y_arr, c=color, label=label_val, **self.line_style)
     
     def plot_actual(self, color:str, is_loglog:bool) -> None:
+        y_actual = self.ACTUAL_Y
+        if (self.dimensions > 1):
+            y_actual = y_actual[:,0]
+
         if (is_loglog):
-            plt.loglog(self.t_vals, self.ACTUAL_Y, mfc=color, **self.line_style)
+            plt.loglog(self.t_vals, y_actual, mfc=color, label = "Actual Graph", **self.line_style)
         else:
-            plt.plot(self.t_vals, self.ACTUAL_Y, mfc=color, **self.line_style)
-        plt.show()
+            plt.plot(self.t_vals, y_actual, mfc=color, label = "Actual Graph", **self.line_style)
 
     def phase_diagram(self, color:str, method:str) -> None:
         match method.lower():
@@ -96,13 +109,14 @@ class DiffEq:
             raise ValueError("Bad dimensions")
 
         plt.plot(self.y_vals[:,0], self.y_vals[:,1], c=color, label=method, **self.line_style)
+        print(self.y_vals[:,0], "\n", self.y_vals[:,1])
         plt.legend()
         plt.show()
 
     def plot_error_with_actual(self, color_list:list, time_list:list, method_list:list) -> None: # actual task1
         original_DT = self.DT
         for i in range(len(method_list)):
-            points = np.zeros(len(time_list)) if self.dimensions == 1 else np.zeros(len(time_list), self.dimensions)
+            points = np.zeros(len(time_list))
             for j in range(len(time_list)):
                 self.DT = time_list[j]
                 self.t_vals = np.linspace(0, self.T_FINAL, int(self.T_FINAL/self.DT) + 1)
@@ -116,9 +130,10 @@ class DiffEq:
                         self.explicit_midpoint()
                     case "low storage runge-kutta 4" | "3":
                         self.rk4()
+                    case "backward euler" | "4":
+                        self.backward_euler()
                     case _:
-                        print("???")
-                        continue
+                        raise ValueError("Bad methods")
                 
                 points[j] = np.abs(self.y_vals[-1] - self.ACTUAL_Y[-1]) if self.dimensions == 1 else np.abs(self.y_vals[-1][0] - self.ACTUAL_Y[-1][0])
             plt.loglog(time_list, points, c=color_list[i], label=method_list[i], **self.line_style)
