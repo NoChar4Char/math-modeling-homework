@@ -43,6 +43,8 @@ def bisection(xa:float, xb:float, TAU:float):
         else:
             lo = mid
     return lo
+
+# print(f'x = {bisection(10**-6, 1.99, 10**-15)} at equllibrium. ')
 #Task 4
 truth_actual = 0.05687710815030454 #via 100 iterations
 truth_tau = 0.0568762004442215 #using tau = 1e-6
@@ -76,23 +78,23 @@ def plot_log_bisection_error(xa:float, xb:float, truth_value:float, num_of_itera
 # plot_log_bisection_error(10**-6, 1.99, truth_actual, 60)
 
 #Task 5
-def fixed_point_iteration(x0:float, TAU:float=10**-9):
+def fixed_point_iteration(x0:float, TAU:float=10**-6):
     list_vals = [g(x0)]
     i = 0
-    while i == 0 or abs(list_vals[i] - list_vals[i-1]) > TAU and i != 10000:
+    while i == 0 or abs((list_vals[i] - list_vals[i-1])/list_vals[i]) > TAU and i != 10000:
         list_vals.append(g(list_vals[i]))
         i += 1
-    return list_vals
+    return list_vals[-1]
 
-# print(fixed_point_iteration(-30))
+print(fixed_point_iteration(5))
 
 def newton_raphson(x0:float, f:function, df:function, TAU:float=10**-9):
     x_vals = [x0]
     i = 0
-    while i == 0 or abs(x_vals[i] - x_vals[i-1]) > TAU and i != 10000:
+    while i == 0 or abs((x_vals[i] - x_vals[i-1])/x_vals[i]) > TAU and i != 10000:
         prev_x_val = x_vals[i]
         x_vals.append(prev_x_val - f(prev_x_val) / df(f, prev_x_val))
         i += 1
     return x_vals[-1]
 
-print(newton_raphson(-30, f, df))
+# print(newton_raphson(-30, f, df))
