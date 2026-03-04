@@ -87,6 +87,7 @@ class DiffEq:
                 curr_theta -= self.nonlin_pendulum_theta_eq(prev_omega, prev_theta, curr_theta) / self.df_nonlin_pendulum(curr_theta)
             curr_omega = self.DT * (-G) * np.sin(curr_theta) / L + prev_omega
             self.y_vals[i+1] = np.array([curr_theta, curr_omega])
+        self.is_filled = True
         return self.y_vals[-1]
 
     def plot(self, color:str, is_loglog:bool, is_diff:bool, label_val:str) -> None:
