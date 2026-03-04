@@ -116,7 +116,7 @@ class DiffEq:
         else:
             plt.plot(self.t_vals, y_actual, mfc=color, label = "Actual Graph", **DiffEq.line_style)
 
-    def phase_portrait(self, this_color:str, thetas:list, omegas:list, method:str) -> None:
+    def phase_portrait(self, this_color:str, thetas:list, omegas:list, method:str,) -> None:
         for theta in thetas:
             for omega in omegas:
                 self.Y_0 = np.array([theta, omega], dtype=float)
@@ -132,8 +132,8 @@ class DiffEq:
                         return None
                 if not self.dimensions == 2:
                     raise ValueError("Bad dimensions")
-                plt.scatter(self.y_vals[:,0], self.y_vals[:,1], color=this_color, marker="o", s=1, linewidths=0.5)
-        
+                plt.scatter(self.y_vals[:,0], self.y_vals[:,1], color=this_color, marker="o", s=1, linewidths=0.05)
+        plt.scatter([], [], color=this_color, marker="o", s=1, linewidths=0.5, label=self.name)
         plt.title(f"Phase Portrait for {self.name}", **DiffEq.labels)
         plt.xlabel("Theta (Angular Displacement)", **DiffEq.labels)
         plt.ylabel("Omega (Angular Velocity)", **DiffEq.labels)
