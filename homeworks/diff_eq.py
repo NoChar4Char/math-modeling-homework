@@ -9,17 +9,14 @@ class DiffEq:
     
     def __init__(self, name:str, f:function, T_FINAL:int, DT:float, Y_0:float, ACTUAL_Y): # broken if DT not divisible by T_FINAL
         self.dimensions = None
-        try:
-            self.dimensions = ACTUAL_Y.shape[1]
-        except IndexError:
-            self.dimensions = 1
+        try: self.dimensions = ACTUAL_Y.shape[1]
+        except IndexError: self.dimensions = 1
         self.f = f
         self.T_FINAL = T_FINAL
         self.DT = DT
         self.Y_0 = Y_0
         self.ACTUAL_Y = ACTUAL_Y
-        if T_FINAL/DT != int(T_FINAL/DT):
-            raise ValueError(f"DT={DT} doesn't divide into T_FINAL={T_FINAL}, remainder is {int(T_FINAL/DT)}")
+        if T_FINAL/DT != int(T_FINAL/DT): raise ValueError(f"DT={DT} doesn't divide into T_FINAL={T_FINAL}, remainder is {int(T_FINAL/DT)}")
         self.t_vals = np.linspace(0, T_FINAL, int(T_FINAL/DT) + 1)
         self.y_vals = np.zeros((int(T_FINAL/DT)+1)) if self.dimensions == 1 else np.zeros((int(T_FINAL/DT)+1, self.dimensions))
         self.is_filled = False
@@ -65,6 +62,31 @@ class DiffEq:
         for i in range(n_steps):
             self.y_vals[i+1] = np.linalg.solve(I - self.DT*A, self.y_vals[i])
         self.is_filled = True
+        return self.y_vals[-1]
+    
+    def nonlin_pendulum_theta_eq(self, omega_n:float, theta_n:float, x:float):
+        G = 10
+        L = 10
+        return x + (self.DT)*(self.DT)*G/L*np.sin(x) - self.DT * omega_n - theta_n
+
+    def df_nonlin_pendulum(self, x:float):
+        G = 10
+        L = 10
+        return 1 + G * self.DT * self.DT / L * np.cos(x)
+    def backward_euler_nonlin_pendulum(self, TAU=10**-12):
+        if self.name != "Nonlinear Pendulum": raise ValueError("Bad DE, must be a nonlinear pendulum")
+        G = 10
+        L = 10
+        self.y_vals[0] = self.Y_0
+        n_steps = int(self.T_FINAL/self.DT)
+        for i in range(n_steps):
+            prev_theta = self.y_vals[i][0]
+            prev_omega = self.y_vals[i][1]
+            curr_theta = 1
+            while abs(self.nonlin_pendulum_theta_eq(prev_omega, prev_theta, curr_theta)) > TAU:
+                curr_theta -= self.nonlin_pendulum_theta_eq(prev_omega, prev_theta, curr_theta) / self.df_nonlin_pendulum(curr_theta)
+            curr_omega = self.DT * (-G) * np.sin(curr_theta) / L + prev_omega
+            self.y_vals[i+1] = np.array([curr_theta, curr_omega])
         return self.y_vals[-1]
 
     def plot(self, color:str, is_loglog:bool, is_diff:bool, label_val:str) -> None:
