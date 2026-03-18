@@ -64,6 +64,31 @@ class DiffEq:
         self.is_filled = True
         return self.y_vals[-1]
     
+    def backward_euler_oscillator(self, C):
+        if self.name.lower() != "forced damped oscillator":
+            raise NameError("Bad differential equation")
+        n_steps = int(self.T_FINAL/self.DT)
+        self.y_vals[0] = self.Y_0
+        for i in range(n_steps):
+            I = np.array([[1, 0], [0, 1]])
+            self.y_vals[i+1] = np.linalg.solve(I - C*self.DT, self.y_vals[i])
+        self.is_filled = True
+        return self.y_vals[-1]
+    
+    def backward_euler_parachute(self, B, M, K, G=10):
+        if self.name.lower() != "parachute with drag":
+            raise NameError("Bad differential equation")
+        n_steps = int(self.T_FINAL/self.DT)
+        self.y_vals[0] = self.Y_0
+        for i in range(n_steps):
+            a = B * self.DT / M
+            b = 1
+            c = -(self.y_vals[i][1]+G*self.DT)
+            self.y_vals[i+1][1] = (-b + np.sqrt(b*b-4*a*c))/(2*a)
+            self.y_vals[i+1][0] = self.DT * self.y_vals[i+1][1] + self.y_vals[i][0]
+        self.is_filled = True
+        return self.y_vals[-1]
+    
     def nonlin_pendulum_theta_eq(self, omega_n:float, theta_n:float, x:float):
         G = 10
         L = 10
@@ -158,7 +183,7 @@ class DiffEq:
                     case "low storage runge-kutta 4" | "3":
                         self.rk4()
                     case "backward euler" | "4":
-                        self.backward_euler()
+                        self.backward_euler_nonlin_pendulum()
                     case _:
                         raise ValueError("Bad methods")
                 

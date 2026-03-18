@@ -18,8 +18,10 @@ def df(f:function, x:float):
     return (f(x+DT) - f(x)) / DT
 # Task 2
 def bisection():
-    lo = -80.0
-    hi = -20.0
+    lo = 0
+    hi = 1
+    if f(lo) * f(hi) > 0:
+        raise ValueError("Bad values")
     while hi-lo > TAU:
         mid = lo + (hi-lo)/2
         if f(mid)*f(lo)<0: # diff signs
@@ -28,7 +30,7 @@ def bisection():
             lo = mid
     return lo
 
-# print(bisection())
+print(bisection())
 
 #Task 3
 def bisection(xa:float, xb:float, TAU:float):
@@ -86,7 +88,7 @@ def fixed_point_iteration(x0:float, TAU:float=10**-6):
         i += 1
     return list_vals[-1]
 
-print(fixed_point_iteration(5))
+# print(fixed_point_iteration(5))
 
 def newton_raphson(x0:float, f:function, df:function, TAU:float=10**-9):
     x_vals = [x0]

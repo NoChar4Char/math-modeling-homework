@@ -48,9 +48,9 @@ nonlin_pendulum = DiffEq("Nonlinear Pendulum", nonlin_g, T_FINAL, DT, Y_0, lin_p
 
 method = "Explicit Midpoint"
 # plt.style.use('dark_background')
-thetas = np.linspace(-2*PI, 2*PI, 17)
+thetas = np.linspace(-8*PI, 8*PI, 33)
 omegas = np.linspace(-3, 3, 13)
-lin_pendulum.phase_portrait("red", thetas, omegas, method)
+# lin_pendulum.phase_portrait("red", thetas, omegas, method)
 nonlin_pendulum.phase_portrait("green", thetas, omegas, method)
 
 plt.legend()
