@@ -44,10 +44,12 @@ class DiffEq:
         n_steps = int(self.T_FINAL/self.DT)
         self.y_vals[0] = self.Y_0
         for i in range(n_steps):
-            y1 = self.y_vals[i]+self.DT/4 * self.f(self.t_vals[i]+self.DT/4, self.y_vals[i])
-            y2 = self.y_vals[i]+self.DT/3 * self.f(self.t_vals[i]+self.DT/3, y1)
-            y3 = self.y_vals[i]+self.DT/2 * self.f(self.t_vals[i]+self.DT/2, y2)
-            self.y_vals[i+1] = self.y_vals[i]+self.DT * self.f(self.t_vals[i+1], y3)
+            t_i, y_i = self.t_vals[i], self.y_vals[i]
+            y1 = self.f(t_i, y_i)
+            y2 = self.f(t_i + self.DT/2, y_i + self.DT/2 * y1)
+            y3 = self.f(t_i + self.DT/2, y_i + self.DT/2 * y2)
+            y4 = self.f(t_i + self.DT, y_i + self.DT * y3)
+            self.y_vals[i+1] = self.y_vals[i] + self.DT/6 * (y1 + 2*y2 + 2*y3 + y4)
         self.is_filled = True
         return self.y_vals[-1]
     
@@ -75,7 +77,7 @@ class DiffEq:
         self.is_filled = True
         return self.y_vals[-1]
     
-    def backward_euler_parachute(self, B, M, K, G=10):
+    def backward_euler_parachute(self, B, M, G=10):
         if self.name.lower() != "parachute with drag":
             raise NameError("Bad differential equation")
         n_steps = int(self.T_FINAL/self.DT)
